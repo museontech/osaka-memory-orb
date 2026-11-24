@@ -60763,9 +60763,9 @@ const ATMOSPHERES = {
   violet: {
     id: 'violet',
     label: 'Violet Studio',
-    baseStops: ['#3d1868', '#5c2696', '#7b39ba', '#491d7d'],
-    glowColor: 'rgba(218, 152, 255, 0.48)',
-    warmRim: 'rgba(255, 198, 156, 0.28)',
+    baseStops: ['#29104d', '#471c78', '#622a9c', '#33145c'],
+    glowColor: 'rgba(198, 128, 255, 0.36)',
+    warmRim: 'rgba(255, 190, 152, 0.22)',
     strokeColors: [
       'rgba(128, 66, 196, 0.24)',
       'rgba(168, 98, 232, 0.18)',
@@ -60983,7 +60983,7 @@ class PainterlyBackdrop {
  * pearlescent micro-mica, warm champagne under-planet halo, and 28 twinkling
  * upper starry purple fairy lights that linger gently inside the orb.
  */
-function createGlobeShell(globeRadius = 5.05) {
+function createGlobeShell(globeRadius = 5.42) {
   const root = new THREE.Group();
   root.name = 'CrystalGlobeShell';
 
@@ -60999,9 +60999,9 @@ function createGlobeShell(globeRadius = 5.05) {
     uniforms: {
       uTime: { value: 0 },
       uReveal: { value: 0 },
-      uRimColor: { value: new THREE.Color(0xe0b8ff) },
-      uWarmColor: { value: new THREE.Color(0xfff4e0) },
-      uEdgeShadow: { value: new THREE.Color(0x5a2896) }
+      uRimColor: { value: new THREE.Color(0xf2dbff) },
+      uWarmColor: { value: new THREE.Color(0xffffff) },
+      uEdgeShadow: { value: new THREE.Color(0x280d4f) }
     },
     vertexShader: `
       varying vec3 vNormalW;
@@ -61036,14 +61036,15 @@ function createGlobeShell(globeRadius = 5.05) {
         vec3 NV = normalize(vNormalView);
         float ndotv = clamp(dot(N, V), 0.0, 1.0);
 
-        float fresnel = pow(1.0 - ndotv, 2.5);
-        float outerEdge = pow(1.0 - ndotv, 5.0);
-        float wallDepth = smoothstep(0.54, 0.20, ndotv) * (1.0 - smoothstep(0.20, 0.04, ndotv));
+        float fresnel = pow(1.0 - ndotv, 2.15);
+        float outerEdge = pow(1.0 - ndotv, 3.8);
+        float outerRimLine = smoothstep(0.32, 0.03, ndotv);
+        float wallDepth = smoothstep(0.56, 0.24, ndotv) * (1.0 - smoothstep(0.24, 0.09, ndotv));
 
         float iridPhase = ndotv * 6.5 + NV.y * 0.85 - NV.x * 0.65 + uTime * 0.06;
         vec3 rainbow = thinFilmSpectrum(iridPhase);
-        vec3 rimGlow = mix(uRimColor, rainbow, 0.45);
-        rimGlow = mix(rimGlow, uWarmColor, smoothstep(0.55, 1.0, outerEdge) * 0.55);
+        vec3 rimGlow = mix(uRimColor, rainbow, 0.35);
+        rimGlow = mix(rimGlow, uWarmColor, smoothstep(0.38, 0.92, outerEdge) * 0.72);
 
         // Analytic upper-left curved softbox crescent reflection
         vec2 pUL = NV.xy - vec2(-0.46, 0.46);
@@ -61061,13 +61062,14 @@ function createGlobeShell(globeRadius = 5.05) {
         vec2 rLR = vec2(pLR.x * ca - pLR.y * sa, pLR.x * sa + pLR.y * ca);
         float bounceLR = smoothstep(0.46, 0.09, length(vec2(rLR.x * 1.25, rLR.y * 3.4))) * smoothstep(0.04, 0.38, ndotv);
 
-        vec3 glassRgb = mix(uEdgeShadow, rimGlow, clamp(outerEdge * 1.35 + fresnel * 0.55, 0.0, 1.0));
-        glassRgb += vec3(1.0, 0.98, 0.95) * (softboxMain * 0.68 + softboxCore + miniGlint);
-        glassRgb += mix(uRimColor, vec3(1.0, 0.82, 0.97), 0.45) * (bounceLR * 0.48);
+        vec3 glassRgb = mix(uEdgeShadow, rimGlow, clamp(outerEdge * 1.45 + fresnel * 0.68, 0.0, 1.0));
+        glassRgb = mix(glassRgb, vec3(0.98, 0.94, 1.0), outerRimLine * 0.55);
+        glassRgb += vec3(1.0, 0.99, 1.0) * (softboxMain * 0.92 + softboxCore * 0.85 + miniGlint * 0.58);
+        glassRgb += mix(uRimColor, vec3(1.0, 0.84, 0.99), 0.50) * (bounceLR * 0.65);
 
-        float centerClarity = 0.008;
-        float alpha = centerClarity + wallDepth * 0.12 + fresnel * 0.32 + outerEdge * 0.52 + softboxMain * 0.46 + miniGlint * 0.35 + bounceLR * 0.30;
-        alpha = clamp(alpha, 0.0, 0.90) * (1.0 - uReveal);
+        float centerClarity = 0.045;
+        float alpha = centerClarity + wallDepth * 0.20 + fresnel * 0.44 + outerEdge * 0.68 + outerRimLine * 0.34 + softboxMain * 0.68 + softboxCore * 0.55 + miniGlint * 0.42 + bounceLR * 0.44;
+        alpha = clamp(alpha, 0.0, 0.95) * (1.0 - uReveal);
 
         gl_FragColor = vec4(glassRgb, alpha);
       }
@@ -61148,12 +61150,12 @@ function createGlobeShell(globeRadius = 5.05) {
         fluidColor = mix(fluidColor, uColC, smoothstep(0.25, 0.92, ribbon2) * 0.65);
         fluidColor += uGoldCol * (micaVeil * 0.45);
 
-        float edgeMask = pow(1.0 - ndotv, 1.78);
+        float edgeMask = pow(1.0 - ndotv, 1.48);
         float lowerBowl = smoothstep(0.68, -0.78, p.y) * 0.70 + 0.30;
         float silkIntensity = (0.36 + 0.68 * max(ribbon1, ribbon2) + 0.34 * micaVeil) * (1.0 + uSwirlBoost * 0.28);
 
-        float alpha = edgeMask * lowerBowl * silkIntensity * 0.38 * (1.0 - uReveal);
-        gl_FragColor = vec4(fluidColor, clamp(alpha, 0.0, 0.64));
+        float alpha = edgeMask * lowerBowl * silkIntensity * 0.54 * (1.0 - uReveal);
+        gl_FragColor = vec4(fluidColor, clamp(alpha, 0.0, 0.76));
       }
     `
   });
@@ -61174,7 +61176,7 @@ function createGlobeShell(globeRadius = 5.05) {
   ];
 
   for (let i = 0; i < micaCount; i++) {
-    const r = 3.85 + Math.random() * 0.93;
+    const r = 4.05 + Math.random() * 1.08;
     const angle = Math.random() * Math.PI * 2;
     const polar = Math.acos(2 * Math.random() - 1);
     const radialHoriz = r * Math.sin(polar);
@@ -61247,7 +61249,7 @@ function createGlobeShell(globeRadius = 5.05) {
     blending: THREE.AdditiveBlending
   });
   const underWarmHalo = new THREE.Sprite(underWarmMat);
-  underWarmHalo.position.set(0, -4.15, 0.35);
+  underWarmHalo.position.set(0, -4.35, 0.35);
   underWarmHalo.scale.set(4.8, 2.8, 1);
   underWarmHalo.renderOrder = 9;
   root.add(underWarmHalo);
@@ -61282,9 +61284,9 @@ function createGlobeShell(globeRadius = 5.05) {
   const fairyState = [];
 
   for (let i = 0; i < 28; i++) {
-    const r = 3.92 + Math.random() * 0.80;
+    const r = 4.15 + Math.random() * 0.98;
     const angle = (i / 28) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
-    const y = 1.4 + Math.random() * 3.05;
+    const y = 1.6 + Math.random() * 3.15;
     const horizR = Math.sqrt(Math.max(0.25, r * r - y * y));
 
     const mat = new THREE.SpriteMaterial({
@@ -61489,10 +61491,10 @@ function createGlobeShell(globeRadius = 5.05) {
     box.getCenter(center);
 
     const horizMax = Math.max(size.x, size.z, 0.001);
-    const scale = 8.8 / horizMax;
+    const scale = 9.4 / horizMax;
     clone.scale.multiplyScalar(scale);
 
-    const topY = -2.42;
+    const topY = -2.72;
     const bottomY = topY - size.y * scale;
     clone.position.set(-center.x * scale, topY - box.max.y * scale, -center.z * scale);
     floorShadow.position.y = bottomY - 0.05;
@@ -61604,8 +61606,8 @@ function createGlobeShell(globeRadius = 5.05) {
         liquidMat.uniforms.uColC.value.setHex(0xe2c6ff);
         liquidMat.uniforms.uGoldCol.value.setHex(0xfff6dc);
       } else {
-        glassMat.uniforms.uRimColor.value.setHex(0xe0b8ff);
-        glassMat.uniforms.uWarmColor.value.setHex(0xfff4e0);
+        glassMat.uniforms.uRimColor.value.setHex(0xf2dbff);
+        glassMat.uniforms.uWarmColor.value.setHex(0xffffff);
         liquidMat.uniforms.uColA.value.setHex(0xcf9eff);
         liquidMat.uniforms.uColB.value.setHex(0x7beeff);
         liquidMat.uniforms.uColC.value.setHex(0xfface8);
@@ -64853,8 +64855,6 @@ async function init() {
     alpha: true,
     powerPreference: 'high-performance'
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.24;
@@ -64866,7 +64866,30 @@ async function init() {
   scene.environment = createDioramaEnvironment(renderer);
   scene.environmentIntensity = 0.95;
 
-  const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+
+  let lastViewportW = 0;
+  let lastViewportH = 0;
+  let lastViewportDpr = 0;
+  function syncViewportSize() {
+    const w = Math.max(1, window.innerWidth || document.documentElement.clientWidth || 1);
+    const h = Math.max(1, window.innerHeight || document.documentElement.clientHeight || 1);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    if (w === lastViewportW && h === lastViewportH && dpr === lastViewportDpr) return;
+    lastViewportW = w;
+    lastViewportH = h;
+    lastViewportDpr = dpr;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setPixelRatio(dpr);
+    renderer.setSize(w, h, false);
+    backdrop.resize();
+  }
+  syncViewportSize();
+  window.addEventListener('resize', syncViewportSize);
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncViewportSize).observe(document.documentElement);
+  }
 
   const hemiLight = new THREE.HemisphereLight(0xfffaf0, 0x9c74d6, 1.45);
   scene.add(hemiLight);
@@ -64913,7 +64936,7 @@ async function init() {
   scene.add(upperPurpleC);
 
   // World hierarchy
-  const globeShell = createGlobeShell(5.05);
+  const globeShell = createGlobeShell(5.42);
   scene.add(globeShell.group);
 
   const planetGroup = new THREE.Group();
@@ -64959,14 +64982,18 @@ async function init() {
   const tmpLookAt = new THREE.Vector3();
 
   function getExteriorPose(outPos, outLook) {
-    const aspect = window.innerWidth / window.innerHeight;
+    const w = Math.max(1, window.innerWidth || document.documentElement.clientWidth || 1);
+    const h = Math.max(1, window.innerHeight || document.documentElement.clientHeight || 1);
+    const aspect = w / h;
     if (aspect >= 1.05) {
-      // Frame the crystal globe & ornate pedestal harmoniously on the right beside left hero text
-      outPos.set(-3.1, -0.5, 21.8);
-      outLook.set(-3.1, -1.94, 0);
+      const shiftX = THREE.MathUtils.clamp((aspect - 1.05) * 4.4, 0.9, 3.3);
+      outPos.set(-shiftX, -0.7, 24.4);
+      outLook.set(-shiftX, -1.25, 0);
     } else {
-      outPos.set(0, -1.9, 27.6);
-      outLook.set(0, -4.55, 0);
+      const minZ = 6.2 / (Math.tan(THREE.MathUtils.degToRad(20)) * Math.max(0.42, aspect));
+      const z = Math.max(27.5, Math.min(38.0, minZ));
+      outPos.set(0, -1.2, z);
+      outLook.set(0, -2.6, 0);
     }
   }
 
@@ -65087,18 +65114,12 @@ async function init() {
   ui.refreshAssetTable();
   document.getElementById('loading-overlay')?.classList.add('is-done');
 
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    backdrop.resize();
-  });
-
   const clock = new THREE.Clock();
   const camDirWorld = new THREE.Vector3();
 
   function animate() {
     requestAnimationFrame(animate);
+    syncViewportSize();
     const dt = Math.min(clock.getDelta(), 0.05);
     const elapsed = clock.elapsedTime;
 
