@@ -1,0 +1,163 @@
+{
+  "version": 1,
+  "project": "Osaka Memory Orb — Super Nintendo World",
+  "planetRadius": 3.2,
+  "assets": [
+    {
+      "id": "planet-core",
+      "name": "Little Planet Core",
+      "category": "terrain",
+      "referenceImage": "assets/references/new/00-planet-core-hq.png",
+      "glbPath": "assets/models/planet-core.glb",
+      "ready": false,
+      "targetHeight": 6.4,
+      "embedOffset": 0,
+      "reuseCount": 1,
+      "meshyTexturePrompt": "Clean soft-matte tactile miniature clay 3D planet sphere, velvety lush meadow green turf with scalloped edges and tiny sculpted clover tufts, recessed golden-sandstone cobble winding footpath with beveled earthen curbs and smooth pebbles, organic warm ochre terracotta exposed soil patches with layered clay contours, zero plastic glare."
+    },
+    {
+      "id": "snw-sign",
+      "name": "Super Nintendo World Sign",
+      "category": "landmark",
+      "referenceImage": "assets/references/new/01-snw-sign.png",
+      "glbPath": "assets/models/snw-sign.glb",
+      "ready": true,
+      "targetHeight": 1.42,
+      "embedOffset": 0.05,
+      "reuseCount": 1,
+      "meshyTexturePrompt": "Clean smooth satin cartoon 3D theme park entrance sign, vivid multicolor sculpted block letters reading SUPER NINTENDO WORLD, rounded beveled plaque frame, warm golden star accent, toy collectible finish."
+    },
+    {
+      "id": "piranha-plant",
+      "name": "Piranha Plant",
+      "category": "character-prop",
+      "referenceImage": "assets/references/new/02-piranha-plant.png",
+      "glbPath": "assets/models/piranha-plant.glb",
+      "ready": true,
+      "targetHeight": 0.86,
+      "embedOffset": 0.04,
+      "reuseCount": 3,
+      "meshyTexturePrompt": "Clean smooth satin cartoon 3D Mario Piranha Plant collectible, bright red bulb head with crisp white polka dots, thick ivory lips, cute rounded teeth, deep red mouth interior, curved green stalk and broad sculpted leaves."
+    },
+    {
+      "id": "gold-coin",
+      "name": "Gold Coin",
+      "category": "collectible",
+      "referenceImage": "assets/references/new/03-gold-coin.png",
+      "glbPath": "assets/models/gold-coin.glb",
+      "ready": true,
+      "targetHeight": 0.34,
+      "embedOffset": -0.14,
+      "reuseCount": 18,
+      "meshyTexturePrompt": "Clean smooth satin metallic warm gold cartoon 3D game coin, softly beveled thick disc with raised outer rim and centered vertical rounded slot emblem."
+    },
+    {
+      "id": "traveler-jump",
+      "name": "Jumping Traveler Souvenir",
+      "category": "memory-hero",
+      "referenceImage": "assets/references/new/04-traveler-jump-v2.png",
+      "glbPath": "assets/models/traveler-jump.glb",
+      "ready": true,
+      "targetHeight": 1.15,
+      "embedOffset": -0.1,
+      "reuseCount": 1,
+      "meshyTexturePrompt": "Clean smooth matte cartoon vinyl 2.5-head chibi traveler figurine in running jump pose, red Mario cap with white circle and red M, brown-cream-burgundy plaid shirt, green backpack, pink wristband with yellow badge, blue jeans, black shoes."
+    },
+    {
+      "id": "grass-fortress",
+      "name": "Blocky Grass Fortress",
+      "category": "landmark",
+      "referenceImage": "assets/references/new/05-grass-fortress.png",
+      "glbPath": "assets/models/grass-fortress.glb",
+      "ready": true,
+      "targetHeight": 1.38,
+      "embedOffset": 0.22,
+      "reuseCount": 1,
+      "meshyTexturePrompt": "Clean smooth satin cartoon 3D multi-tiered fortress cluster of interlocking square grass-topped tan soil blocks, bright green scalloped grass caps, golden-tan and cream soil bands with stylized pebbles."
+    },
+    {
+      "id": "yoshi-dino",
+      "name": "Yoshi Dinosaur",
+      "category": "character-prop",
+      "referenceImage": "assets/references/new/06-yoshi-dino.png",
+      "glbPath": "assets/models/yoshi-dino.glb",
+      "ready": true,
+      "targetHeight": 0.96,
+      "embedOffset": 0.04,
+      "reuseCount": 2,
+      "meshyTexturePrompt": "Clean smooth satin cartoon 3D green Yoshi dinosaur toy figurine, plump green body, big round snout, white cheeks and belly, orange head spines, red-and-white saddle shell, orange-brown boots."
+    },
+    {
+      "id": "super-star",
+      "name": "Cartoon Super Star",
+      "category": "collectible",
+      "referenceImage": "assets/references/new/07-super-star.png",
+      "glbPath": "assets/models/super-star.glb",
+      "ready": true,
+      "targetHeight": 0.54,
+      "embedOffset": -0.14,
+      "reuseCount": 3,
+      "meshyTexturePrompt": "Clean smooth satin cartoon 3D chunky golden-yellow five-pointed Super Star collectible with two cute glossy vertical black oval eyes."
+    },
+    {
+      "id": "green-pipe",
+      "name": "Green Warp Pipe",
+      "category": "prop",
+      "referenceImage": "assets/references/existing/07-green-pipe.png",
+      "glbPath": "assets/models/green-pipe.glb",
+      "ready": true,
+      "targetHeight": 0.72,
+      "embedOffset": 0.06,
+      "reuseCount": 6,
+      "meshyTexturePrompt": "Clean smooth satin bright emerald green cartoon 3D warp pipe, thick rounded collar rim, clean dark hollow interior, toy vinyl finish."
+    },
+    {
+      "id": "fruit-tree",
+      "name": "Cartoon Fruit Tree",
+      "category": "nature",
+      "referenceImage": "assets/references/existing/08-fruit-tree.png",
+      "glbPath": "assets/models/fruit-tree.glb",
+      "ready": true,
+      "targetHeight": 1.15,
+      "embedOffset": 0.05,
+      "reuseCount": 7,
+      "meshyTexturePrompt": "Clean smooth satin cartoon 3D apple fruit tree, warm sculpted spiral caramel-brown trunk, puffy rounded bright green leaf canopy lobes, glossy red apples with tiny lime leaves."
+    },
+    {
+      "id": "question-block",
+      "name": "Question Block",
+      "category": "prop",
+      "referenceImage": "assets/references/existing/09-question-block.png",
+      "glbPath": "assets/models/question-block.glb",
+      "ready": true,
+      "targetHeight": 0.56,
+      "embedOffset": -0.22,
+      "reuseCount": 4,
+      "meshyTexturePrompt": "Clean smooth satin cartoon 3D Mario question block cube, golden yellow rounded cube with corner rivets and embossed white question marks on four sides."
+    },
+    {
+      "id": "red-mushroom",
+      "name": "Red Mushroom",
+      "category": "prop",
+      "referenceImage": "assets/references/existing/10-red-mushroom.png",
+      "glbPath": "assets/models/red-mushroom.glb",
+      "ready": true,
+      "targetHeight": 0.52,
+      "embedOffset": 0.04,
+      "reuseCount": 6,
+      "meshyTexturePrompt": "Clean smooth satin cartoon 3D cute red mushroom, glossy-satin red cap with white circular spots, plump warm cream stem with two cute black oval eyes."
+    },
+    {
+      "id": "globe-pedestal",
+      "name": "Ornate Crystal Globe Pedestal",
+      "category": "shell",
+      "referenceImage": "assets/references/new/08-globe-pedestal.png",
+      "glbPath": "assets/models/globe-pedestal.glb",
+      "ready": true,
+      "targetHeight": 2.45,
+      "embedOffset": 0,
+      "reuseCount": 1,
+      "meshyTexturePrompt": "Clean smooth satin royal-plum and brushed champagne-gold fantasy crystal-ball pedestal stand, sweeping curved wing-leaf cradle prongs, central faceted amethyst-lavender crystal gem, sculpted scrollwork collar with round medallion, stepped circular plinth."
+    }
+  ]
+}
