@@ -60983,7 +60983,7 @@ class PainterlyBackdrop {
  * pearlescent micro-mica, warm champagne under-planet halo, and 28 twinkling
  * upper starry purple fairy lights that linger gently inside the orb.
  */
-function createGlobeShell(globeRadius = 5.42) {
+function createGlobeShell(globeRadius = 5.55) {
   const root = new THREE.Group();
   root.name = 'CrystalGlobeShell';
 
@@ -61176,7 +61176,7 @@ function createGlobeShell(globeRadius = 5.42) {
   ];
 
   for (let i = 0; i < micaCount; i++) {
-    const r = 4.05 + Math.random() * 1.08;
+    const r = 4.15 + Math.random() * 1.10;
     const angle = Math.random() * Math.PI * 2;
     const polar = Math.acos(2 * Math.random() - 1);
     const radialHoriz = r * Math.sin(polar);
@@ -61249,7 +61249,7 @@ function createGlobeShell(globeRadius = 5.42) {
     blending: THREE.AdditiveBlending
   });
   const underWarmHalo = new THREE.Sprite(underWarmMat);
-  underWarmHalo.position.set(0, -4.35, 0.35);
+  underWarmHalo.position.set(0, -4.45, 0.35);
   underWarmHalo.scale.set(4.8, 2.8, 1);
   underWarmHalo.renderOrder = 9;
   root.add(underWarmHalo);
@@ -61284,9 +61284,9 @@ function createGlobeShell(globeRadius = 5.42) {
   const fairyState = [];
 
   for (let i = 0; i < 28; i++) {
-    const r = 4.15 + Math.random() * 0.98;
+    const r = 4.25 + Math.random() * 1.02;
     const angle = (i / 28) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
-    const y = 1.6 + Math.random() * 3.15;
+    const y = 1.6 + Math.random() * 3.2;
     const horizR = Math.sqrt(Math.max(0.25, r * r - y * y));
 
     const mat = new THREE.SpriteMaterial({
@@ -61491,10 +61491,10 @@ function createGlobeShell(globeRadius = 5.42) {
     box.getCenter(center);
 
     const horizMax = Math.max(size.x, size.z, 0.001);
-    const scale = 9.4 / horizMax;
+    const scale = 9.6 / horizMax;
     clone.scale.multiplyScalar(scale);
 
-    const topY = -2.72;
+    const topY = -2.82;
     const bottomY = topY - size.y * scale;
     clone.position.set(-center.x * scale, topY - box.max.y * scale, -center.z * scale);
     floorShadow.position.y = bottomY - 0.05;
@@ -61617,10 +61617,139 @@ function createGlobeShell(globeRadius = 5.42) {
   };
 }
 
+/**
+ * 10 cute sculpted multi-puff storybook marshmallow clouds in asymmetric orbital
+ * groupings strictly inside the crystal sphere (visible both inside and outside).
+ */
+function createPlanetClouds(globeRadius = 5.55) {
+  const root = new THREE.Group();
+  root.name = 'PlanetOrbitingClouds';
+
+  const cloudMat = new THREE.MeshStandardMaterial({
+    color: 0xfffbff,
+    emissive: 0x523478,
+    emissiveIntensity: 0.34,
+    roughness: 0.86,
+    metalness: 0.0,
+    envMapIntensity: 0.28
+  });
+
+  const maxOrbitR = globeRadius - 0.30;
+  const specs = [
+    // Upper-left hero cloud + tiny companion puff (floating cleanly above mid-latitudes)
+    { latDeg: 39, lonDeg: 312, r: 5.04, scale: 0.84, puffs: 7, speed: 0.042, bobAmp: 0.040, phase: 0.2 },
+    { latDeg: 48, lonDeg: 292, r: 4.98, scale: 0.54, puffs: 5, speed: 0.056, bobAmp: 0.032, phase: 1.1 },
+    // Upper-right sunlit trio
+    { latDeg: 43, lonDeg: 42, r: 4.96, scale: 0.84, puffs: 7, speed: 0.038, bobAmp: 0.042, phase: 1.9 },
+    { latDeg: 28, lonDeg: 58, r: 5.09, scale: 0.58, puffs: 6, speed: 0.052, bobAmp: 0.032, phase: 2.7 },
+    { latDeg: 51, lonDeg: 24, r: 5.06, scale: 0.56, puffs: 5, speed: 0.064, bobAmp: 0.032, phase: 3.4 },
+    // Lower-left & lower-right framing wisps
+    { latDeg: -22, lonDeg: 306, r: 4.92, scale: 0.68, puffs: 6, speed: 0.046, bobAmp: 0.036, phase: 4.1 },
+    { latDeg: -16, lonDeg: 66, r: 4.86, scale: 0.72, puffs: 6, speed: 0.040, bobAmp: 0.038, phase: 4.9 },
+    // Back hemisphere clouds
+    { latDeg: 41, lonDeg: 152, r: 5.04, scale: 0.76, puffs: 7, speed: 0.044, bobAmp: 0.036, phase: 5.4 },
+    { latDeg: -10, lonDeg: 202, r: 4.82, scale: 0.64, puffs: 5, speed: 0.058, bobAmp: 0.034, phase: 0.7 },
+    { latDeg: 46, lonDeg: 222, r: 5.00, scale: 0.68, puffs: 6, speed: 0.048, bobAmp: 0.036, phase: 2.3 }
+  ];
+
+  const sphereGeo = new THREE.SphereGeometry(1, 14, 12);
+  const up = new THREE.Vector3(0, 1, 0);
+  const clouds = [];
+
+  specs.forEach((spec, idx) => {
+    const cloudGroup = new THREE.Group();
+    const baseLayouts = [
+      [0, 0.06, 0, 0.17],
+      [-0.17, 0.02, 0.03, 0.13],
+      [0.17, 0.02, -0.02, 0.135],
+      [-0.08, 0.12, 0.05, 0.12],
+      [0.09, 0.11, -0.04, 0.125],
+      [0, -0.03, 0.12, 0.11],
+      [-0.25, -0.01, -0.02, 0.095]
+    ];
+
+    for (let p = 0; p < spec.puffs; p++) {
+      const [px, py, pz, pr] = baseLayouts[p % baseLayouts.length];
+      const puff = new THREE.Mesh(sphereGeo, cloudMat);
+      puff.position.set(px, py, pz);
+      puff.scale.set(pr * 1.18, pr * 0.90, pr * 1.05);
+      puff.castShadow = false;
+      puff.receiveShadow = false;
+      cloudGroup.add(puff);
+    }
+
+    cloudGroup.scale.setScalar(spec.scale);
+    const safeR = Math.min(spec.r, maxOrbitR - 0.23 * spec.scale);
+    const latRad = THREE.MathUtils.degToRad(spec.latDeg);
+    const lonRad = THREE.MathUtils.degToRad(spec.lonDeg);
+
+    root.add(cloudGroup);
+    clouds.push({
+      group: cloudGroup,
+      latRad,
+      lonRad,
+      baseR: safeR,
+      speed: spec.speed * (idx % 4 === 0 ? 1.15 : 1.0),
+      bobAmp: spec.bobAmp,
+      phase: spec.phase,
+      yawSpin: (idx % 2 === 0 ? 1 : -1) * 0.18
+    });
+  });
+
+  function positionClouds(elapsed) {
+    const n = new THREE.Vector3();
+    const qAlign = new THREE.Quaternion();
+    const qSpin = new THREE.Quaternion();
+    for (const c of clouds) {
+      const r = c.baseR + Math.sin(elapsed * 1.3 + c.phase) * c.bobAmp;
+      const cosLat = Math.cos(c.latRad);
+      n.set(
+        cosLat * Math.sin(c.lonRad),
+        Math.sin(c.latRad),
+        cosLat * Math.cos(c.lonRad)
+      ).normalize();
+      c.group.position.copy(n).multiplyScalar(r);
+      qAlign.setFromUnitVectors(up, n);
+      qSpin.setFromAxisAngle(up, elapsed * c.yawSpin + c.phase);
+      c.group.quaternion.copy(qAlign).multiply(qSpin);
+    }
+  }
+
+  positionClouds(0);
+
+  return {
+    group: root,
+    clouds,
+    update(elapsed, dt = 0.016, swirlEnergy = 0) {
+      const speedMult = 1 + swirlEnergy * 1.8;
+      for (const c of clouds) {
+        c.lonRad += dt * c.speed * speedMult;
+      }
+      positionClouds(elapsed);
+    },
+    setTint(themeId) {
+      if (themeId === 'dusk') {
+        cloudMat.color.setHex(0xfff1e4);
+        cloudMat.emissive.setHex(0x6b2f48);
+        cloudMat.emissiveIntensity = 0.28;
+      } else if (themeId === 'snow') {
+        cloudMat.color.setHex(0xf4fbff);
+        cloudMat.emissive.setHex(0x284078);
+        cloudMat.emissiveIntensity = 0.28;
+      } else {
+        cloudMat.color.setHex(0xfffbff);
+        cloudMat.emissive.setHex(0x3b2458);
+        cloudMat.emissiveIntensity = 0.24;
+      }
+    }
+  };
+}
+
 // ===== planetCore.js =====
 const PLANET_RADIUS = 3.2;
 const ROAD_HALF_WIDTH = 0.088;
 const CURB_WIDTH = 0.024;
+const PLANET_UP = new THREE.Vector3(0, 1, 0);
 
 function dirFromLatLon(latDeg, lonDeg) {
   const lat = THREE.MathUtils.degToRad(latDeg);
@@ -61639,6 +61768,15 @@ const SOIL_PATCHES = [
   { latDeg: -36, lonDeg: 215, dir: dirFromLatLon(-36, 215), r: 0.21, lobeFreq: 3.0, lobeAmp: 0.032 },
   { latDeg: 30, lonDeg: 305, dir: dirFromLatLon(30, 305), r: 0.19, lobeFreq: 2.0, lobeAmp: 0.026 },
   { latDeg: -66, lonDeg: 150, dir: dirFromLatLon(-66, 150), r: 0.22, lobeFreq: 3.0, lobeAmp: 0.034 }
+];
+
+const MARIO_TERRACES = [
+  { id: 'summit-citadel', name: 'North Summit Citadel Terrace', latDeg: 75, lonDeg: 4 },
+  { id: 'front-left-cliff', name: 'Front-Left Mario Cliff', latDeg: 26, lonDeg: 294 },
+  { id: 'east-hillside', name: 'East Terraced Hillside', latDeg: 16, lonDeg: 144 },
+  { id: 'entrance-plaza', name: 'Entrance Plaza Terrace', latDeg: 22, lonDeg: 328 },
+  { id: 'south-front-outcrop', name: 'South-Front Outcrop', latDeg: -38, lonDeg: 338 },
+  { id: 'south-east-outcrop', name: 'South-East Outcrop', latDeg: -42, lonDeg: 98 }
 ];
 
 /**
@@ -61719,15 +61857,15 @@ function smoothstep(edge0, edge1, x) {
 }
 
 function evaluateSurfaceSample(nx, ny, nz) {
-  // Soft organic meadow wave + subtle clover turf micro-detail
+  // Rich storybook emerald-meadow green wave + subtle clover turf micro-detail
   const wave = 0.5 + 0.5 * Math.sin(nx * 2.5 + ny * 2.2 + nz * 1.9);
   const tuft = 0.5 + 0.5 * Math.sin(nx * 21.0 + ny * 18.0) * Math.cos(nz * 19.0 - nx * 14.0);
   const scallop = 0.5 + 0.5 * Math.sin(nx * 38.0 + nz * 34.0 + ny * 29.0);
 
   let disp = 0.008 * Math.sin(nx * 2.8 + ny * 2.3 + nz * 2.1) + 0.005 * (tuft - 0.5);
 
-  const grassBase = [84, 184, 50];
-  const grassBright = [139, 224, 78];
+  const grassBase = [62, 168, 42];
+  const grassBright = [116, 212, 64];
   let r = grassBase[0] + (grassBright[0] - grassBase[0]) * (wave * 0.65 + tuft * 0.18);
   let g = grassBase[1] + (grassBright[1] - grassBase[1]) * (wave * 0.65 + tuft * 0.18);
   let b = grassBase[2] + (grassBright[2] - grassBase[2]) * (wave * 0.65 + tuft * 0.18);
@@ -61774,13 +61912,11 @@ function evaluateSurfaceSample(nx, ny, nz) {
       smoothstep(ROAD_HALF_WIDTH - 0.005, ROAD_HALF_WIDTH + 0.008, d) *
       (1 - smoothstep(ROAD_HALF_WIDTH + 0.008, ROAD_HALF_WIDTH + CURB_WIDTH + 0.012, d));
 
-    // Rounded cobblestone flagstone pattern
     const c1 = Math.sin(nx * 54 + nz * 48) * Math.cos(ny * 52 - nx * 36);
     const c2 = Math.cos(nz * 62 - ny * 44) * Math.sin(nx * 46 + ny * 58);
     const stone = smoothstep(-0.35, 0.35, c1 * 0.6 + c2 * 0.4);
     const mortar = 1 - stone;
 
-    // Warm tan-ochre beveled curb (strictly zero pink)
     const curbShade = 0.88 + 0.12 * scallop;
     const curbR = 210 * curbShade;
     const curbG = 148 * curbShade;
@@ -61850,7 +61986,6 @@ function buildPlanetPbrTextures() {
     }
   }
 
-  // Sobel tangent-space normal map from heightBuf
   const normalData = new Uint8Array(nPixels * 4);
   const strength = 2.6;
   for (let y = 0; y < height; y++) {
@@ -61912,10 +62047,505 @@ function createPlanetRng(seed) {
   };
 }
 
+function makeTiledCanvasTexture(size, colorSpace, repeatX, repeatY, drawFn) {
+  if (typeof document === 'undefined') return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  drawFn(ctx, size, size);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = colorSpace;
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(repeatX, repeatY);
+  tex.anisotropy = 4;
+  tex.needsUpdate = true;
+  return tex;
+}
+
+function drawRoundedRectPath(ctx, x, y, w, h, r) {
+  const rad = Math.min(r, w * 0.45, h * 0.45);
+  ctx.beginPath();
+  ctx.moveTo(x + rad, y);
+  ctx.lineTo(x + w - rad, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + rad);
+  ctx.lineTo(x + w, y + h - rad);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - rad, y + h);
+  ctx.lineTo(x + rad, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - rad);
+  ctx.lineTo(x, y + rad);
+  ctx.quadraticCurveTo(x, y, x + rad, y);
+  ctx.closePath();
+}
+
+let cachedMarioMaterials = null;
+
+function getMarioMaterials() {
+  if (cachedMarioMaterials) return cachedMarioMaterials;
+
+  const brickColors = ['#d98042', '#c86c31', '#e59d5c', '#d27739'];
+  const texRng = createPlanetRng(91204);
+
+  const brickAlbedo = makeTiledCanvasTexture(512, THREE.SRGBColorSpace, 0.95, 1.15, (ctx, w, h) => {
+    ctx.fillStyle = '#853f1b';
+    ctx.fillRect(0, 0, w, h);
+
+    const rows = 6;
+    const cols = 4;
+    const rowH = h / rows;
+    const colW = w / cols;
+    const pad = 7;
+
+    for (let r = 0; r < rows; r++) {
+      const offset = (r % 2) * (colW * 0.5);
+      for (let c = -1; c <= cols; c++) {
+        const bx = c * colW + offset + pad;
+        const by = r * rowH + pad;
+        const bw = colW - pad * 2;
+        const bh = rowH - pad * 2;
+        const fill = brickColors[(r * 3 + c + 4) % brickColors.length];
+
+        drawRoundedRectPath(ctx, bx, by, bw, bh, 12);
+        ctx.fillStyle = fill;
+        ctx.fill();
+
+        // Soft upper soil strata band + clay highlight
+        ctx.fillStyle = 'rgba(255, 224, 178, 0.22)';
+        drawRoundedRectPath(ctx, bx + 4, by + 3, bw - 8, bh * 0.28, 6);
+        ctx.fill();
+
+        // Warm lower shadow
+        ctx.fillStyle = 'rgba(116, 48, 16, 0.18)';
+        drawRoundedRectPath(ctx, bx + 4, by + bh * 0.72, bw - 8, bh * 0.22, 6);
+        ctx.fill();
+      }
+    }
+
+    // Tactile embedded soil pebbles
+    for (let i = 0; i < 90; i++) {
+      const px = texRng() * w;
+      const py = texRng() * h;
+      const pr = 2 + texRng() * 4.5;
+      ctx.fillStyle = i % 3 === 0 ? 'rgba(255, 228, 185, 0.25)' : 'rgba(104, 44, 15, 0.24)';
+      ctx.beginPath();
+      ctx.arc(px, py, pr, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+
+  const brickBump = makeTiledCanvasTexture(512, THREE.NoColorSpace, 0.95, 1.15, (ctx, w, h) => {
+    ctx.fillStyle = '#383838';
+    ctx.fillRect(0, 0, w, h);
+
+    const rows = 6;
+    const cols = 4;
+    const rowH = h / rows;
+    const colW = w / cols;
+    const pad = 7;
+
+    for (let r = 0; r < rows; r++) {
+      const offset = (r % 2) * (colW * 0.5);
+      for (let c = -1; c <= cols; c++) {
+        const bx = c * colW + offset + pad;
+        const by = r * rowH + pad;
+        const bw = colW - pad * 2;
+        const bh = rowH - pad * 2;
+        drawRoundedRectPath(ctx, bx, by, bw, bh, 12);
+        ctx.fillStyle = (r + c) % 2 === 0 ? '#dfdfdf' : '#cbcbcb';
+        ctx.fill();
+      }
+    }
+  });
+
+  const grassRng = createPlanetRng(44191);
+  const grassAlbedo = makeTiledCanvasTexture(512, THREE.SRGBColorSpace, 1.1, 1.1, (ctx, w, h) => {
+    const grad = ctx.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, '#52c436');
+    grad.addColorStop(0.55, '#6cd444');
+    grad.addColorStop(1, '#82df52');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+    for (let i = 0; i < 240; i++) {
+      const gx = grassRng() * w;
+      const gy = grassRng() * h;
+      const gw = 10 + grassRng() * 24;
+      const gh = 6 + grassRng() * 14;
+      ctx.fillStyle =
+        i % 3 === 0 ? 'rgba(146, 236, 94, 0.35)' : i % 3 === 1 ? 'rgba(54, 152, 34, 0.22)' : 'rgba(112, 212, 62, 0.28)';
+      ctx.beginPath();
+      ctx.ellipse(gx, gy, gw, gh, grassRng() * Math.PI, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Soft bevel rim vignette around tile border
+    ctx.strokeStyle = 'rgba(42, 118, 28, 0.24)';
+    ctx.lineWidth = 18;
+    ctx.strokeRect(9, 9, w - 18, h - 18);
+  });
+
+  const grassBump = makeTiledCanvasTexture(512, THREE.NoColorSpace, 1.1, 1.1, (ctx, w, h) => {
+    ctx.fillStyle = '#9a9a9a';
+    ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < 220; i++) {
+      const gx = grassRng() * w;
+      const gy = grassRng() * h;
+      ctx.fillStyle = i % 2 === 0 ? '#c4c4c4' : '#7a7a7a';
+      ctx.beginPath();
+      ctx.arc(gx, gy, 4 + grassRng() * 11, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+
+  const stairAlbedo = makeTiledCanvasTexture(512, THREE.SRGBColorSpace, 1.0, 1.0, (ctx, w, h) => {
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, '#f0ad58');
+    grad.addColorStop(1, '#d98734');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+    // Beveled Mario block inset border + mid seam
+    ctx.strokeStyle = '#a95920';
+    ctx.lineWidth = 14;
+    drawRoundedRectPath(ctx, 18, 18, w - 36, h - 36, 20);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(255, 232, 184, 0.45)';
+    ctx.lineWidth = 8;
+    drawRoundedRectPath(ctx, 28, 28, w - 56, h - 56, 14);
+    ctx.stroke();
+
+    ctx.fillStyle = '#a95920';
+    ctx.fillRect(28, h * 0.5 - 4, w - 56, 8);
+
+    // 4 Corner rivets
+    for (const [rx, ry] of [
+      [52, 52],
+      [w - 52, 52],
+      [52, h - 52],
+      [w - 52, h - 52]
+    ]) {
+      ctx.beginPath();
+      ctx.arc(rx, ry, 10, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+
+  const stairBump = makeTiledCanvasTexture(512, THREE.NoColorSpace, 1.0, 1.0, (ctx, w, h) => {
+    ctx.fillStyle = '#cfcfcf';
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = '#555555';
+    ctx.lineWidth = 16;
+    drawRoundedRectPath(ctx, 18, 18, w - 36, h - 36, 20);
+    ctx.stroke();
+    ctx.fillStyle = '#606060';
+    ctx.fillRect(28, h * 0.5 - 4, w - 56, 8);
+  });
+
+  cachedMarioMaterials = {
+    earthMat: new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      map: brickAlbedo,
+      bumpMap: brickBump,
+      bumpScale: 0.028,
+      roughness: 0.82,
+      metalness: 0.0,
+      envMapIntensity: 0.24
+    }),
+    grassCapMat: new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      map: grassAlbedo,
+      bumpMap: grassBump,
+      bumpScale: 0.02,
+      roughness: 0.80,
+      metalness: 0.0,
+      envMapIntensity: 0.24
+    }),
+    scallopDripMat: new THREE.MeshStandardMaterial({
+      color: 0x62cf3c,
+      roughness: 0.80,
+      metalness: 0.0,
+      envMapIntensity: 0.24
+    }),
+    stairMat: new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      map: stairAlbedo,
+      bumpMap: stairBump,
+      bumpScale: 0.024,
+      roughness: 0.80,
+      metalness: 0.0,
+      envMapIntensity: 0.24
+    }),
+    tuftMat: new THREE.MeshStandardMaterial({
+      color: 0x62cb3c,
+      roughness: 0.84,
+      metalness: 0.0,
+      envMapIntensity: 0.22
+    }),
+    flowerStemMat: new THREE.MeshStandardMaterial({
+      color: 0x4ca832,
+      roughness: 0.84,
+      metalness: 0.0,
+      envMapIntensity: 0.2
+    }),
+    flowerCenterMat: new THREE.MeshStandardMaterial({
+      color: 0xffd54f,
+      roughness: 0.65,
+      metalness: 0.0,
+      envMapIntensity: 0.25
+    }),
+    petalMats: [
+      new THREE.MeshStandardMaterial({ color: 0xfff9ea, roughness: 0.72, metalness: 0.0, envMapIntensity: 0.22 }),
+      new THREE.MeshStandardMaterial({ color: 0xffeb7a, roughness: 0.72, metalness: 0.0, envMapIntensity: 0.22 }),
+      new THREE.MeshStandardMaterial({ color: 0xff9884, roughness: 0.72, metalness: 0.0, envMapIntensity: 0.22 })
+    ]
+  };
+
+  return cachedMarioMaterials;
+}
+
+function terraceRoundedRectShape(w, d, r) {
+  const shape = new THREE.Shape();
+  const hw = w * 0.5;
+  const hd = d * 0.5;
+  const rad = Math.min(r, hw * 0.88, hd * 0.88);
+  shape.moveTo(-hw + rad, -hd);
+  shape.lineTo(hw - rad, -hd);
+  shape.quadraticCurveTo(hw, -hd, hw, -hd + rad);
+  shape.lineTo(hw, hd - rad);
+  shape.quadraticCurveTo(hw, hd, hw - rad, hd);
+  shape.lineTo(-hw + rad, hd);
+  shape.quadraticCurveTo(-hw, hd, -hw, hd - rad);
+  shape.lineTo(-hw, -hd + rad);
+  shape.quadraticCurveTo(-hw, -hd, -hw + rad, -hd);
+  return shape;
+}
+
+/**
+ * Extrudes a soft beveled slab centered at X=0, Z=0 with bottom at Y=0 and top at Y=h.
+ */
+function createBeveledSlab(w, h, d, radius = 0.055) {
+  const bevel = Math.min(radius, w * 0.24, d * 0.24, h * 0.28);
+  const innerW = Math.max(0.03, w - bevel * 2);
+  const innerD = Math.max(0.03, d - bevel * 2);
+  const innerH = Math.max(0.02, h - bevel * 2);
+
+  const geo = new THREE.ExtrudeGeometry(terraceRoundedRectShape(innerW, innerD, bevel * 0.65), {
+    depth: innerH,
+    bevelEnabled: true,
+    bevelThickness: bevel,
+    bevelSize: bevel,
+    bevelSegments: 3,
+    curveSegments: 6
+  });
+  geo.rotateX(-Math.PI * 0.5);
+  geo.computeBoundingBox();
+  const bb = geo.boundingBox;
+  const cx = (bb.min.x + bb.max.x) * 0.5;
+  const cz = (bb.min.z + bb.max.z) * 0.5;
+  geo.translate(-cx, -bb.min.y, -cz);
+  return geo;
+}
+
+function createTinyFlowerCluster(rng, mats) {
+  const flower = new THREE.Group();
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.011, 0.04, 6), mats.flowerStemMat);
+  stem.position.y = 0.02;
+  stem.userData.skipSurfaceRaycast = true;
+  flower.add(stem);
+
+  const petalMat = mats.petalMats[Math.floor(rng() * mats.petalMats.length)];
+  const petalGeo = new THREE.SphereGeometry(0.016, 7, 6);
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * Math.PI * 2;
+    const petal = new THREE.Mesh(petalGeo, petalMat);
+    petal.scale.set(1.0, 0.55, 1.0);
+    petal.position.set(Math.cos(a) * 0.018, 0.044, Math.sin(a) * 0.018);
+    petal.userData.skipSurfaceRaycast = true;
+    flower.add(petal);
+  }
+
+  const center = new THREE.Mesh(new THREE.SphereGeometry(0.013, 7, 6), mats.flowerCenterMat);
+  center.position.y = 0.046;
+  center.userData.skipSurfaceRaycast = true;
+  flower.add(center);
+  flower.userData.skipSurfaceRaycast = true;
+  return flower;
+}
+
+function createMarioEarthBlock({ w, h, d, hasGrassCap = true, skirt = 0.30, addDecor = false, rng, mats }) {
+  const block = new THREE.Group();
+  const totalBodyH = h + skirt;
+  const bodyGeo = createBeveledSlab(w, totalBodyH, d, 0.05);
+  const bodyMesh = new THREE.Mesh(bodyGeo, mats.earthMat);
+  bodyMesh.position.y = -skirt;
+  bodyMesh.castShadow = true;
+  bodyMesh.receiveShadow = true;
+  bodyMesh.userData.isMarioTerrain = true;
+  block.add(bodyMesh);
+
+  if (hasGrassCap) {
+    const capW = w + 0.07;
+    const capD = d + 0.07;
+    const capH = 0.11;
+    const capGeo = createBeveledSlab(capW, capH, capD, 0.045);
+    const capMesh = new THREE.Mesh(capGeo, mats.grassCapMat);
+    capMesh.position.y = h - capH + 0.03;
+    capMesh.castShadow = true;
+    capMesh.receiveShadow = true;
+    capMesh.userData.isMarioTerrain = true;
+    block.add(capMesh);
+
+    // Subtle scalloped overhang turf tabs along block rims
+    const tabGeo = new THREE.SphereGeometry(0.042, 8, 6);
+    const sideCountX = Math.max(2, Math.round(w * 2.8));
+    const sideCountZ = Math.max(2, Math.round(d * 2.8));
+    for (let sx = 0; sx < sideCountX; sx++) {
+      const fx = ((sx + 0.5) / sideCountX - 0.5) * (w * 0.78);
+      for (const zSign of [-1, 1]) {
+        const tab = new THREE.Mesh(tabGeo, mats.scallopDripMat);
+        tab.scale.set(1.3, 1.05, 0.62);
+        tab.position.set(fx, h - 0.065, zSign * (capD * 0.48));
+        tab.userData.skipSurfaceRaycast = true;
+        block.add(tab);
+      }
+    }
+    for (let sz = 0; sz < sideCountZ; sz++) {
+      const fz = ((sz + 0.5) / sideCountZ - 0.5) * (d * 0.78);
+      for (const xSign of [-1, 1]) {
+        const tab = new THREE.Mesh(tabGeo, mats.scallopDripMat);
+        tab.scale.set(0.62, 1.05, 1.3);
+        tab.position.set(xSign * (capW * 0.48), h - 0.065, fz);
+        tab.userData.skipSurfaceRaycast = true;
+        block.add(tab);
+      }
+    }
+
+    if (addDecor && rng) {
+      const flower = createTinyFlowerCluster(rng, mats);
+      flower.position.set((w * 0.32) * (rng() > 0.5 ? 1 : -1), h + 0.025, (d * 0.32) * (rng() > 0.5 ? 1 : -1));
+      block.add(flower);
+    }
+  }
+
+  return block;
+}
+
+function createMarioStaircase({ width, stepCount, stepH, stepD, skirt = 0.28, mats }) {
+  const stairs = new THREE.Group();
+  for (let i = 0; i < stepCount; i++) {
+    const h = (stepCount - i) * stepH;
+    const totalH = h + skirt;
+    const stepGeo = createBeveledSlab(width, totalH, stepD + 0.04, 0.032);
+    const stepMesh = new THREE.Mesh(stepGeo, mats.stairMat);
+    stepMesh.position.set(0, -skirt, (i - (stepCount - 1) * 0.5) * stepD);
+    stepMesh.castShadow = true;
+    stepMesh.receiveShadow = true;
+    stepMesh.userData.isMarioTerrain = true;
+    stairs.add(stepMesh);
+  }
+  return stairs;
+}
+
+function createOrientedFormation(latDeg, lonDeg, yawDeg = 0, radialOffset = -0.10) {
+  const group = new THREE.Group();
+  const n = dirFromLatLon(latDeg, lonDeg);
+  group.position.copy(n).multiplyScalar(PLANET_RADIUS + radialOffset);
+  const qAlign = new THREE.Quaternion().setFromUnitVectors(PLANET_UP, n);
+  const qYaw = new THREE.Quaternion().setFromAxisAngle(PLANET_UP, THREE.MathUtils.degToRad(yawDeg));
+  group.quaternion.copy(qAlign).multiply(qYaw);
+  return group;
+}
+
+function buildMarioTerraceFormations(rng, mats) {
+  const terracesRoot = new THREE.Group();
+  terracesRoot.name = 'MarioTerraceFormations';
+
+  // Formation A: North Summit Citadel Terrace + 2 Flanking Bastions + Terracotta Stairs
+  const summitGroup = createOrientedFormation(75, 4, 14, -0.11);
+  summitGroup.add(createMarioEarthBlock({ w: 1.24, h: 0.24, d: 1.24, hasGrassCap: true, skirt: 0.34, rng, mats }));
+  terracesRoot.add(summitGroup);
+
+  const bastionW = createOrientedFormation(58, 338, 18, -0.09);
+  bastionW.add(createMarioEarthBlock({ w: 0.56, h: 0.32, d: 0.56, hasGrassCap: true, skirt: 0.28, addDecor: true, rng, mats }));
+  terracesRoot.add(bastionW);
+
+  const bastionE = createOrientedFormation(56, 32, -12, -0.09);
+  bastionE.add(createMarioEarthBlock({ w: 0.58, h: 0.34, d: 0.58, hasGrassCap: true, skirt: 0.28, addDecor: true, rng, mats }));
+  terracesRoot.add(bastionE);
+
+  const summitStairs = createOrientedFormation(54, 352, 8, -0.09);
+  summitStairs.add(createMarioStaircase({ width: 0.42, stepCount: 4, stepH: 0.085, stepD: 0.14, skirt: 0.26, mats }));
+  terracesRoot.add(summitStairs);
+
+  // Formation B: Front-Left Mario Stacked-Block Adventure Cliff (Hero visual cluster)
+  const cliffGroup = createOrientedFormation(26, 294, -18, -0.10);
+  const bSpecs = [
+    { x: -0.08, z: -0.12, w: 0.92, h: 0.46, d: 0.88, hasGrassCap: true, addDecor: true },
+    { x: -0.56, z: -0.26, w: 0.72, h: 0.36, d: 0.72, hasGrassCap: true, addDecor: true },
+    { x: 0.44, z: -0.44, w: 0.34, h: 0.78, d: 0.34, hasGrassCap: false, addDecor: false },
+    { x: 0.46, z: 0.24, w: 0.78, h: 0.30, d: 0.72, hasGrassCap: true, addDecor: false },
+    { x: -0.48, z: 0.46, w: 0.70, h: 0.26, d: 0.70, hasGrassCap: true, addDecor: true }
+  ];
+  for (const s of bSpecs) {
+    const blk = createMarioEarthBlock({ ...s, skirt: 0.34, rng, mats });
+    blk.position.set(s.x, 0, s.z);
+    cliffGroup.add(blk);
+  }
+  const cliffStairs = createOrientedFormation(17, 304, 30, -0.09);
+  cliffStairs.add(createMarioStaircase({ width: 0.40, stepCount: 4, stepH: 0.085, stepD: 0.14, skirt: 0.26, mats }));
+  terracesRoot.add(cliffGroup, cliffStairs);
+
+  // Formation C: East Yoshi & Warp-Pipe Terraced Hillside
+  const eastGroup = createOrientedFormation(16, 144, 16, -0.10);
+  const cSpecs = [
+    { x: 0.0, z: 0.0, w: 0.88, h: 0.52, d: 0.86, hasGrassCap: true, addDecor: true },
+    { x: -0.48, z: -0.22, w: 0.68, h: 0.64, d: 0.64, hasGrassCap: true, addDecor: true },
+    { x: 0.56, z: -0.34, w: 0.66, h: 0.38, d: 0.66, hasGrassCap: true, addDecor: false },
+    { x: 0.52, z: 0.34, w: 0.64, h: 0.28, d: 0.62, hasGrassCap: true, addDecor: false },
+    { x: -0.44, z: 0.42, w: 0.58, h: 0.30, d: 0.58, hasGrassCap: true, addDecor: true }
+  ];
+  for (const s of cSpecs) {
+    const blk = createMarioEarthBlock({ ...s, skirt: 0.34, rng, mats });
+    blk.position.set(s.x, 0, s.z);
+    eastGroup.add(blk);
+  }
+  const eastStairs = createOrientedFormation(6, 138, -28, -0.09);
+  eastStairs.add(createMarioStaircase({ width: 0.38, stepCount: 4, stepH: 0.08, stepD: 0.14, skirt: 0.26, mats }));
+  terracesRoot.add(eastGroup, eastStairs);
+
+  // Formation D: Front Entrance Plaza Welcome Step-Terrace
+  const entranceGroup = createOrientedFormation(22, 328, 10, -0.10);
+  const entMain = createMarioEarthBlock({ w: 1.06, h: 0.24, d: 0.70, hasGrassCap: true, skirt: 0.32, addDecor: true, rng, mats });
+  const entStep = createMarioEarthBlock({ w: 0.48, h: 0.38, d: 0.46, hasGrassCap: true, skirt: 0.32, addDecor: false, rng, mats });
+  entStep.position.set(-0.48, 0, -0.24);
+  entranceGroup.add(entMain, entStep);
+  terracesRoot.add(entranceGroup);
+
+  // Formation E: Compact Lower Silhouette Outcrops (South-Front & South-East)
+  const sFront = createOrientedFormation(-38, 338, -14, -0.10);
+  const sfBase = createMarioEarthBlock({ w: 0.80, h: 0.28, d: 0.78, hasGrassCap: true, skirt: 0.32, addDecor: true, rng, mats });
+  const sfTop = createMarioEarthBlock({ w: 0.48, h: 0.46, d: 0.48, hasGrassCap: true, skirt: 0.32, addDecor: false, rng, mats });
+  sfTop.position.set(0.24, 0, -0.20);
+  sFront.add(sfBase, sfTop);
+  terracesRoot.add(sFront);
+
+  const sEast = createOrientedFormation(-42, 98, 22, -0.10);
+  const seBase = createMarioEarthBlock({ w: 0.82, h: 0.28, d: 0.78, hasGrassCap: true, skirt: 0.32, addDecor: true, rng, mats });
+  const seTop = createMarioEarthBlock({ w: 0.48, h: 0.46, d: 0.48, hasGrassCap: true, skirt: 0.32, addDecor: false, rng, mats });
+  seTop.position.set(-0.22, 0, -0.22);
+  sEast.add(seBase, seTop);
+  terracesRoot.add(sEast);
+
+  return terracesRoot;
+}
+
 /**
  * Builds the 49k-triangle displaced 3D sculpted spherical terrain with
  * zero-pink continuous sandstone path & warm curbs, 5 terracotta basins,
- * 2048x1024 procedural PBR maps, and sculpted 3D clover tufts & curb pebbles.
+ * 2048x1024 procedural PBR maps, Mario stacked earth-block terraces,
+ * and sculpted 3D clover tufts, wildflowers & curb pebbles.
  */
 function createPlanetCore() {
   const group = new THREE.Group();
@@ -61955,20 +62585,18 @@ function createPlanetCore() {
   terrainMesh.castShadow = true;
   group.add(terrainMesh);
 
-  // Add ~42 sculpted 3D rounded grass/clover tufts on clear meadows (below lat 54 deg)
-  const tuftMat = new THREE.MeshStandardMaterial({
-    color: 0x62cb3c,
-    roughness: 0.84,
-    metalness: 0.0,
-    envMapIntensity: 0.22
-  });
-  const lobeGeo = new THREE.SphereGeometry(0.048, 10, 8);
-  const UP = new THREE.Vector3(0, 1, 0);
   const rng = createPlanetRng(42026);
+  const marioMats = getMarioMaterials();
+
+  // Add Multi-Tiered Mario Stacked Earth-Block Terraces
+  group.add(buildMarioTerraceFormations(rng, marioMats));
+
+  // Add ~42 sculpted 3D rounded grass/clover tufts on clear meadows (below lat 52 deg)
+  const lobeGeo = new THREE.SphereGeometry(0.048, 10, 8);
   let tuftsPlaced = 0;
 
   for (let tries = 0; tries < 400 && tuftsPlaced < 42; tries++) {
-    const latDeg = -72 + rng() * 124; // [-72, +52], safely below Summit Fortress
+    const latDeg = -72 + rng() * 124;
     const lonDeg = rng() * 360;
     const dir = dirFromLatLon(latDeg, lonDeg);
     if (distanceToRoad(dir.x, dir.y, dir.z) < 0.145) continue;
@@ -61987,21 +62615,57 @@ function createPlanetCore() {
     const scale = 0.8 + rng() * 0.45;
     for (let l = 0; l < 3; l++) {
       const a = (l / 3) * Math.PI * 2 + rng() * 0.5;
-      const lobe = new THREE.Mesh(lobeGeo, tuftMat);
+      const lobe = new THREE.Mesh(lobeGeo, marioMats.tuftMat);
       lobe.scale.set(0.95 * scale, 0.72 * scale, 0.95 * scale);
       lobe.position.set(Math.cos(a) * 0.028 * scale, 0.012 * scale, Math.sin(a) * 0.028 * scale);
       lobe.castShadow = true;
       lobe.receiveShadow = true;
+      lobe.userData.skipSurfaceRaycast = true;
       tuftGroup.add(lobe);
     }
+    tuftGroup.userData.skipSurfaceRaycast = true;
     const rSurface = PLANET_RADIUS + s.disp;
     tuftGroup.position.copy(dir).multiplyScalar(rSurface);
-    tuftGroup.quaternion.setFromUnitVectors(UP, dir);
+    tuftGroup.quaternion.setFromUnitVectors(PLANET_UP, dir);
     group.add(tuftGroup);
     tuftsPlaced++;
   }
 
-  // Add ~36 smooth rounded 3D sandstone pebbles flush along warm road curb & inside soil basins
+  // Add ~28 miniature pastel 3D wildflowers scattered lightly across open green meadows
+  let flowersPlaced = 0;
+  for (let tries = 0; tries < 320 && flowersPlaced < 28; tries++) {
+    const latDeg = -68 + rng() * 120;
+    const lonDeg = rng() * 360;
+    const dir = dirFromLatLon(latDeg, lonDeg);
+    if (distanceToRoad(dir.x, dir.y, dir.z) < 0.155) continue;
+
+    let inSoilOrTerrace = false;
+    for (const p of SOIL_PATCHES) {
+      if (dir.distanceTo(p.dir) < p.r + 0.06) {
+        inSoilOrTerrace = true;
+        break;
+      }
+    }
+    if (inSoilOrTerrace) continue;
+    for (const t of MARIO_TERRACES) {
+      if (dir.distanceTo(dirFromLatLon(t.latDeg, t.lonDeg)) < 0.34) {
+        inSoilOrTerrace = true;
+        break;
+      }
+    }
+    if (inSoilOrTerrace) continue;
+
+    const s = evaluateSurfaceSample(dir.x, dir.y, dir.z);
+    const flower = createTinyFlowerCluster(rng, marioMats);
+    const sc = 0.85 + rng() * 0.45;
+    flower.scale.setScalar(sc);
+    flower.position.copy(dir).multiplyScalar(PLANET_RADIUS + s.disp);
+    flower.quaternion.setFromUnitVectors(PLANET_UP, dir);
+    group.add(flower);
+    flowersPlaced++;
+  }
+
+  // Add smooth rounded 3D sandstone pebbles flush along warm road curb & inside soil basins
   const pebbleMat = new THREE.MeshStandardMaterial({
     color: 0xdca55c,
     roughness: 0.78,
@@ -62012,7 +62676,7 @@ function createPlanetCore() {
   for (let i = 0; i < 24; i++) {
     const t = ((i + 0.35) / 24) * Math.PI * 2;
     const pt = sampleRoadDirection(t);
-    const side = new THREE.Vector3().crossVectors(UP, pt).normalize();
+    const side = new THREE.Vector3().crossVectors(PLANET_UP, pt).normalize();
     const sign = i % 2 === 0 ? 1 : -1;
     const edgeDir = pt.clone().addScaledVector(side, sign * (ROAD_HALF_WIDTH + CURB_WIDTH * 0.55)).normalize();
     const s = evaluateSurfaceSample(edgeDir.x, edgeDir.y, edgeDir.z);
@@ -62020,13 +62684,14 @@ function createPlanetCore() {
     const sc = 0.78 + rng() * 0.45;
     pebble.scale.set(sc * 1.15, sc * 0.55, sc);
     pebble.position.copy(edgeDir).multiplyScalar(PLANET_RADIUS + s.disp + 0.006);
-    pebble.quaternion.setFromUnitVectors(UP, edgeDir);
+    pebble.quaternion.setFromUnitVectors(PLANET_UP, edgeDir);
     pebble.castShadow = true;
     pebble.receiveShadow = true;
+    pebble.userData.skipSurfaceRaycast = true;
     group.add(pebble);
   }
   for (const patch of SOIL_PATCHES) {
-    const right = new THREE.Vector3().crossVectors(UP, patch.dir).normalize();
+    const right = new THREE.Vector3().crossVectors(PLANET_UP, patch.dir).normalize();
     const fwd = new THREE.Vector3().crossVectors(patch.dir, right).normalize();
     for (let k = 0; k < 2; k++) {
       const ang = k * 2.4 + 0.5;
@@ -62041,8 +62706,9 @@ function createPlanetCore() {
       const sc = 0.9 + rng() * 0.4;
       pebble.scale.set(sc * 1.25, sc * 0.52, sc);
       pebble.position.copy(pDir).multiplyScalar(PLANET_RADIUS + s.disp + 0.005);
-      pebble.quaternion.setFromUnitVectors(UP, pDir);
+      pebble.quaternion.setFromUnitVectors(PLANET_UP, pDir);
       pebble.receiveShadow = true;
+      pebble.userData.skipSurfaceRaycast = true;
       group.add(pebble);
     }
   }
@@ -63454,25 +64120,25 @@ const DISTRICTS = [
     id: 'entrance',
     name: 'Entrance Plaza',
     latDeg: 22,
-    lonDeg: 338
+    lonDeg: 328
   },
   {
     id: 'pipes',
-    name: 'Pipe & Piranha Garden',
-    latDeg: 8,
-    lonDeg: 152
+    name: 'East Yoshi Hillside',
+    latDeg: 16,
+    lonDeg: 145
   },
   {
     id: 'highlands',
     name: 'Highland Castle Crown',
-    latDeg: 70,
-    lonDeg: 0
+    latDeg: 75,
+    lonDeg: 4
   },
   {
     id: 'grove',
-    name: 'Memory Grove',
-    latDeg: 28,
-    lonDeg: 250
+    name: 'Mario Cliff Grove',
+    latDeg: 29,
+    lonDeg: 293
   }
 ];
 
@@ -63485,17 +64151,17 @@ const MEMORIES = [
     photo: './assets/photos/osaka-selfie.jpg',
     text: 'Walking out of the giant green warp pipe into Super Nintendo World felt like stepping straight into a living toybox—bright tiered hills, spinning coins, and question blocks stacked to the sky.',
     latDeg: 22,
-    lonDeg: 338
+    lonDeg: 328
   },
   {
     id: 'mem-yoshi',
-    district: 'Pipe & Piranha Garden',
+    district: 'East Yoshi Hillside',
     badge: "YOSHI'S ADVENTURE · OSAKA",
     title: 'Cruising Past Toad Houses & Koopa Magic',
     photo: './assets/photos/osaka-yoshi.jpg',
     text: 'Gliding softly above the Mushroom Kingdom under dreamy violet lights—spotting Yoshi, Baby Mario, Kamek, and glowing Toad windows tucked around every curve.',
-    latDeg: 8,
-    lonDeg: 152
+    latDeg: 16,
+    lonDeg: 145
   },
   {
     id: 'mem-highlands',
@@ -63503,19 +64169,19 @@ const MEMORIES = [
     badge: 'WORLD SOUVENIR · OSAKA',
     title: 'A Little World Built to Roll & Keep',
     photo: './assets/references/existing/concept-globe-v2.png',
-    text: 'Crowning the peak stands our signature Blocky Grass Fortress overlooking winding golden sandstone paths, lush clay meadows, glowing stars, and roadside memories.',
-    latDeg: 70,
-    lonDeg: 0
+    text: 'Crowning the peak stands our signature Blocky Grass Fortress overlooking winding golden sandstone paths, stacked Mario earth-block terraces, floating clouds, and roadside memories.',
+    latDeg: 75,
+    lonDeg: 4
   },
   {
     id: 'mem-jump',
-    district: 'Memory Grove',
+    district: 'Mario Cliff Grove',
     badge: 'USJ NIGHTFALL · OSAKA',
     title: 'One Last Jump Before Park Closing',
     photo: './assets/photos/osaka-jump.jpg',
-    text: 'Red Mario cap, plaid shirt, green backpack, and a celebratory mid-air jump beneath the park lights—capturing the pure energy of our Osaka trip.',
-    latDeg: 28,
-    lonDeg: 250
+    text: 'Red Mario cap, plaid shirt, green backpack, and a celebratory mid-air jump atop the stacked brick cliff—capturing the pure energy of our Osaka trip.',
+    latDeg: 29,
+    lonDeg: 293
   }
 ];
 
@@ -63560,59 +64226,66 @@ function alignObjectOnSphere(obj, normal, yawDeg = 0, radiusOffset = 0, surfaceR
 }
 
 /**
- * Curated organic roadside layout flanking BOTH shoulders of the continuous 360-deg
- * sandstone cobble road in `planetCore.js`, anchored by ONE Hero Blocky Grass Fortress Crown.
+ * Rhythmic dense-cluster vs. calm open-meadow composition anchored to the
+ * Mario stacked earth-block terraces in `planetCore.js`.
  */
 function buildCuratedPlacements() {
   const items = [
-    // === Main Summit Centerpiece: Hero Blocky Grass Fortress Castle ===
-    { assetId: 'grass-fortress', latDeg: 76, lonDeg: 0, yawDeg: 14, scale: 1.44, memoryId: 'mem-highlands', label: 'Blocky Grass Fortress Castle' },
-    { assetId: 'super-star', latDeg: 76, lonDeg: 0, yawDeg: 14, scale: 0.96, extraRadial: 1.98, phase: 0.2 },
+    // === Cluster 1: North Summit Citadel Crown ===
+    { assetId: 'grass-fortress', latDeg: 75, lonDeg: 4, yawDeg: 14, scale: 1.34, memoryId: 'mem-highlands', label: 'Blocky Grass Fortress Castle' },
+    { assetId: 'super-star', latDeg: 75, lonDeg: 4, yawDeg: 14, scale: 0.88, extraRadial: 1.72, phase: 0.2 },
+    { assetId: 'question-block', latDeg: 56, lonDeg: 32, yawDeg: -12, scale: 0.82, extraRadial: 0.14, phase: 0.8 },
+    { assetId: 'red-mushroom', latDeg: 58, lonDeg: 338, yawDeg: 18, scale: 0.78 },
 
-    // === Vignette 1: Entrance Sign Plaza (flanking front road shoulders) ===
-    { assetId: 'snw-sign', latDeg: 24, lonDeg: 332, yawDeg: 14, scale: 1.08, memoryId: 'mem-entrance', label: 'SUPER NINTENDO WORLD Sign' },
-    { assetId: 'green-pipe', latDeg: 44, lonDeg: 72, yawDeg: -16, scale: 0.96, memoryId: 'mem-entrance', label: 'Warp Pipe Plaza' },
-    { assetId: 'piranha-plant', latDeg: 44, lonDeg: 72, yawDeg: -26, scale: 0.92, extraRadial: 0.60, memoryId: 'mem-entrance', label: 'Piranha Plant' },
-    { assetId: 'fruit-tree', latDeg: 24, lonDeg: 96, yawDeg: 22, scale: 0.94 },
-    { assetId: 'question-block', latDeg: -4, lonDeg: 4, yawDeg: 12, scale: 0.94 },
-    { assetId: 'red-mushroom', latDeg: 2, lonDeg: 46, yawDeg: -18, scale: 0.92 },
-    { assetId: 'red-mushroom', latDeg: -2, lonDeg: 306, yawDeg: 20, scale: 0.92 },
+    // === Cluster 2: Front-Left Mario Stacked Cliff & Dense Forest Flank ===
+    { assetId: 'traveler-jump', latDeg: 29, lonDeg: 293, yawDeg: 16, scale: 1.04, memoryId: 'mem-jump', label: 'Osaka Traveler Figurine' },
+    { assetId: 'snw-sign', latDeg: 22, lonDeg: 328, yawDeg: 12, scale: 1.04, memoryId: 'mem-entrance', label: 'SUPER NINTENDO WORLD Sign' },
+    { assetId: 'green-pipe', latDeg: 14, lonDeg: 280, yawDeg: -18, scale: 0.94, memoryId: 'mem-entrance', label: 'Warp Pipe Cliff' },
+    { assetId: 'piranha-plant', latDeg: 14, lonDeg: 280, yawDeg: -22, scale: 0.88, extraRadial: 0.56, memoryId: 'mem-entrance', label: 'Piranha Plant' },
+    { assetId: 'question-block', latDeg: 33, lonDeg: 277, yawDeg: 20, scale: 0.82, extraRadial: 0.22, phase: 1.1 },
+    { assetId: 'question-block', latDeg: 21, lonDeg: 308, yawDeg: -14, scale: 0.78, extraRadial: 0.16, phase: 2.0 },
+    { assetId: 'red-mushroom', latDeg: 17, lonDeg: 297, yawDeg: 12, scale: 0.82 },
+    { assetId: 'red-mushroom', latDeg: 11, lonDeg: 302, yawDeg: -24, scale: 0.52 },
+    { assetId: 'fruit-tree', latDeg: 46, lonDeg: 271, yawDeg: 24, scale: 1.02 },
+    { assetId: 'fruit-tree', latDeg: 34, lonDeg: 256, yawDeg: -18, scale: 0.84 },
+    { assetId: 'fruit-tree', latDeg: 53, lonDeg: 293, yawDeg: 36, scale: 0.72 },
 
-    // === Vignette 2: Yoshi & Piranha Pipe Bend (flanking east road shoulders) ===
-    { assetId: 'yoshi-dino', latDeg: 4, lonDeg: 146, yawDeg: 22, scale: 1.06, memoryId: 'mem-yoshi', label: 'Yoshi Dinosaur' },
-    { assetId: 'green-pipe', latDeg: 14, lonDeg: 174, yawDeg: 10, scale: 0.98, memoryId: 'mem-yoshi', label: 'Piranha Pipe Garden' },
-    { assetId: 'piranha-plant', latDeg: 14, lonDeg: 174, yawDeg: -18, scale: 0.94, extraRadial: 0.60, memoryId: 'mem-yoshi', label: 'Piranha Plant' },
-    { assetId: 'super-star', latDeg: 38, lonDeg: 168, yawDeg: 32, scale: 0.96, phase: 1.3 },
-    { assetId: 'question-block', latDeg: -34, lonDeg: 168, yawDeg: -14, scale: 0.94 },
-    { assetId: 'red-mushroom', latDeg: -30, lonDeg: 96, yawDeg: 24, scale: 0.92 },
-    { assetId: 'fruit-tree', latDeg: -46, lonDeg: 118, yawDeg: 16, scale: 0.94 },
+    // === Cluster 3: East Yoshi & Warp-Pipe Terraced Kingdom ===
+    { assetId: 'yoshi-dino', latDeg: 17, lonDeg: 145, yawDeg: 20, scale: 1.04, memoryId: 'mem-yoshi', label: 'Yoshi Dinosaur' },
+    { assetId: 'green-pipe', latDeg: 24, lonDeg: 162, yawDeg: 10, scale: 0.98, memoryId: 'mem-yoshi', label: 'Piranha Pipe Garden' },
+    { assetId: 'piranha-plant', latDeg: 24, lonDeg: 162, yawDeg: -16, scale: 0.90, extraRadial: 0.60, memoryId: 'mem-yoshi', label: 'Piranha Plant' },
+    { assetId: 'green-pipe', latDeg: 7, lonDeg: 161, yawDeg: -22, scale: 0.72 },
+    { assetId: 'fruit-tree', latDeg: 35, lonDeg: 130, yawDeg: 18, scale: 1.00 },
+    { assetId: 'fruit-tree', latDeg: 26, lonDeg: 115, yawDeg: -26, scale: 0.82 },
+    { assetId: 'fruit-tree', latDeg: 44, lonDeg: 148, yawDeg: 40, scale: 0.70 },
+    { assetId: 'red-mushroom', latDeg: 6, lonDeg: 148, yawDeg: 14, scale: 0.80 },
+    { assetId: 'red-mushroom', latDeg: 2, lonDeg: 154, yawDeg: -20, scale: 0.52 },
+    { assetId: 'question-block', latDeg: 20, lonDeg: 131, yawDeg: -12, scale: 0.84, extraRadial: 0.18, phase: 1.5 },
+    { assetId: 'super-star', latDeg: 34, lonDeg: 159, yawDeg: 32, scale: 0.88, phase: 1.3 },
 
-    // === Vignette 3: Jumping Traveler Memory Grove (flanking west road shoulders) ===
-    { assetId: 'traveler-jump', latDeg: 36, lonDeg: 250, yawDeg: 16, scale: 1.12, memoryId: 'mem-jump', label: 'Osaka Traveler Figurine' },
-    { assetId: 'fruit-tree', latDeg: 36, lonDeg: 214, yawDeg: 24, scale: 0.96 },
-    { assetId: 'green-pipe', latDeg: -14, lonDeg: 224, yawDeg: 18, scale: 0.96 },
-    { assetId: 'piranha-plant', latDeg: -14, lonDeg: 224, yawDeg: -14, scale: 0.90, extraRadial: 0.58 },
-    { assetId: 'yoshi-dino', latDeg: -14, lonDeg: 254, yawDeg: -22, scale: 0.96 },
-    { assetId: 'red-mushroom', latDeg: 4, lonDeg: 286, yawDeg: 14, scale: 0.92 },
-    { assetId: 'question-block', latDeg: 30, lonDeg: 276, yawDeg: 26, scale: 0.94 },
-    { assetId: 'super-star', latDeg: -34, lonDeg: 266, yawDeg: 42, scale: 0.96, phase: 2.7 },
-    { assetId: 'fruit-tree', latDeg: -44, lonDeg: 300, yawDeg: -30, scale: 0.94 },
+    // === Cluster 4: Compact Lower Silhouette Outcrops ===
+    { assetId: 'green-pipe', latDeg: -38, lonDeg: 338, yawDeg: -18, scale: 0.88 },
+    { assetId: 'piranha-plant', latDeg: -38, lonDeg: 338, yawDeg: 18, scale: 0.82, extraRadial: 0.52 },
+    { assetId: 'red-mushroom', latDeg: -32, lonDeg: 350, yawDeg: 14, scale: 0.74 },
+    { assetId: 'super-star', latDeg: -49, lonDeg: 324, yawDeg: 56, scale: 0.86, phase: 2.6 },
+    { assetId: 'fruit-tree', latDeg: -39, lonDeg: 99, yawDeg: 24, scale: 0.90 },
+    { assetId: 'fruit-tree', latDeg: -50, lonDeg: 116, yawDeg: -30, scale: 0.72 },
+    { assetId: 'question-block', latDeg: -32, lonDeg: 83, yawDeg: 16, scale: 0.80 },
+    { assetId: 'red-mushroom', latDeg: -52, lonDeg: 91, yawDeg: -14, scale: 0.68 },
 
-    // === Vignette 4: Southern Scenic Loop & Polar Accents ===
-    { assetId: 'green-pipe', latDeg: -42, lonDeg: 344, yawDeg: -20, scale: 0.94 },
-    { assetId: 'piranha-plant', latDeg: -42, lonDeg: 344, yawDeg: 18, scale: 0.90, extraRadial: 0.56 },
-    { assetId: 'fruit-tree', latDeg: -46, lonDeg: 52, yawDeg: 38, scale: 0.94 },
-    { assetId: 'red-mushroom', latDeg: -66, lonDeg: 28, yawDeg: 12, scale: 0.92 },
-    { assetId: 'question-block', latDeg: -66, lonDeg: 240, yawDeg: -18, scale: 0.94 },
-    { assetId: 'super-star', latDeg: -68, lonDeg: 326, yawDeg: 70, scale: 0.96, phase: 4.0 }
+    // === Intentional Sparse Open Breathing Meadows ===
+    { assetId: 'red-mushroom', latDeg: -8, lonDeg: 40, yawDeg: 20, scale: 0.70 },
+    { assetId: 'yoshi-dino', latDeg: -6, lonDeg: 230, yawDeg: -18, scale: 0.92 },
+    { assetId: 'question-block', latDeg: -36, lonDeg: 246, yawDeg: -16, scale: 0.84 },
+    { assetId: 'super-star', latDeg: -64, lonDeg: 210, yawDeg: 70, scale: 0.88, phase: 4.1 }
   ];
 
-  // 16 rhythmic Gold Coins spaced directly along the continuous cobblestone road centerline
+  // 16 rhythmic Gold Coins grouped into 4 kinetic streaks of 4 coins each along the cobblestone road
   const roadCoinFracs = [
-    0.00, 0.035, 0.07, 0.105,
-    0.24, 0.275, 0.31, 0.345,
-    0.56, 0.595, 0.63, 0.665,
-    0.80, 0.835, 0.87, 0.905
+    0.01, 0.032, 0.054, 0.076,
+    0.26, 0.282, 0.304, 0.326,
+    0.52, 0.542, 0.564, 0.586,
+    0.78, 0.802, 0.824, 0.846
   ];
 
   roadCoinFracs.forEach((f, idx) => {
@@ -63662,10 +64335,20 @@ class WorldLayout {
     const dirWorld = n.clone().negate().transformDirection(this.planetGroup.matrixWorld).normalize();
     this.surfaceRaycaster.set(originWorld, dirWorld);
     const hits = this.surfaceRaycaster.intersectObjects(this.planetSurfaceRoot.children, true);
-    if (hits.length) {
-      const localHit = this.planetGroup.worldToLocal(hits[0].point.clone());
+    for (const hit of hits) {
+      let skip = false;
+      let cur = hit.object;
+      while (cur) {
+        if (cur.userData?.skipSurfaceRaycast) {
+          skip = true;
+          break;
+        }
+        cur = cur.parent;
+      }
+      if (skip) continue;
+      const localHit = this.planetGroup.worldToLocal(hit.point.clone());
       const dist = localHit.length();
-      if (dist >= 2.8 && dist <= 3.6) {
+      if (dist >= 2.8 && dist <= 4.55) {
         return dist;
       }
     }
@@ -64936,8 +65619,11 @@ async function init() {
   scene.add(upperPurpleC);
 
   // World hierarchy
-  const globeShell = createGlobeShell(5.42);
+  const globeShell = createGlobeShell(5.55);
   scene.add(globeShell.group);
+
+  const planetClouds = createPlanetClouds(5.55);
+  scene.add(planetClouds.group);
 
   const planetGroup = new THREE.Group();
   planetGroup.name = 'RollingLittlePlanet';
@@ -64986,25 +65672,25 @@ async function init() {
     const h = Math.max(1, window.innerHeight || document.documentElement.clientHeight || 1);
     const aspect = w / h;
     if (aspect >= 1.05) {
-      const shiftX = THREE.MathUtils.clamp((aspect - 1.05) * 4.4, 0.9, 3.3);
-      outPos.set(-shiftX, -0.7, 24.4);
-      outLook.set(-shiftX, -1.25, 0);
+      const shiftX = THREE.MathUtils.clamp((aspect - 1.05) * 4.6, 0.9, 3.5);
+      outPos.set(-shiftX, -1.1, 27.6);
+      outLook.set(-shiftX, -1.85, 0);
     } else {
-      const minZ = 6.2 / (Math.tan(THREE.MathUtils.degToRad(20)) * Math.max(0.42, aspect));
-      const z = Math.max(27.5, Math.min(38.0, minZ));
-      outPos.set(0, -1.2, z);
-      outLook.set(0, -2.6, 0);
+      const minZ = 6.45 / (Math.tan(THREE.MathUtils.degToRad(20)) * Math.max(0.42, aspect));
+      const z = Math.max(29.5, Math.min(41.0, minZ));
+      outPos.set(0, -1.4, z);
+      outLook.set(0, -2.8, 0);
     }
   }
 
   function getInteriorPose(outPos, outLook) {
     if (isPlanetView) {
-      outPos.set(0, 2.0, 13.8 + camZoomOffset);
-      outLook.set(0, 0.0, 0);
+      outPos.set(0, 2.0, 14.4 + camZoomOffset);
+      outLook.set(0, 0.1, 0);
     } else {
-      // Comfortable wide diorama framing showing summit castle, winding road, and flanking vignettes
-      outPos.set(0, 3.35, 9.6 + camZoomOffset);
-      outLook.set(0, 0.65, 0);
+      // Balanced diorama framing showing summit castle, floating clouds, mario cliff, and winding road
+      outPos.set(0, 3.55, 11.4 + camZoomOffset);
+      outLook.set(0, 0.72, 0);
     }
   }
 
@@ -65078,6 +65764,7 @@ async function init() {
       upperPurpleC.color.setHex(theme.fillColor);
       sparkles.userData.snowMode = Boolean(theme.snowMode);
       globeShell.setTint(theme.id);
+      planetClouds.setTint(theme.id);
     },
     onEnterGlobe: () => startEnterGlobe(),
     onBackToGlobe: () => startExitGlobe(),
@@ -65126,6 +65813,7 @@ async function init() {
     controls.update(dt);
     worldLayout.update(elapsed);
     globeShell.update(elapsed, dt, controls.getSwirlEnergy());
+    planetClouds.update(elapsed, dt, controls.getSwirlEnergy());
     backdrop.update();
 
     underWarmLight.intensity = 18.0 * (1 + 0.12 * Math.sin(elapsed * 1.4));
